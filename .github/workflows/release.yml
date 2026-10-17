@@ -12,8 +12,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Same sources as Start.bat, bundled so users don't download anything on first run
+      - name: Download tools
+        run: |
+          mkdir tools
+          curl -L --fail -o tools/yt-dlp.exe https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
+          curl -L --fail -o deno.zip https://github.com/denoland/deno/releases/latest/download/deno-x86_64-pc-windows-msvc.zip
+          unzip -j deno.zip deno.exe -d tools
+          curl -L --fail -o ffmpeg.zip https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip
+          unzip -j ffmpeg.zip '*/bin/ffmpeg.exe' '*/bin/ffprobe.exe' -d tools
+          ls -la tools
       - name: Zip app
-        run: zip Playlist-to-MP3.zip Start.bat app.ps1
+        run: zip -r Playlist-to-MP3.zip Start.bat app.ps1 tools
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
