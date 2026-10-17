@@ -22,3 +22,10 @@ jobs:
           printf '%s\n\nDownload **Playlist-to-MP3.zip**, right-click it, choose Extract All, then run **Start.bat**.\n' "$MSG" > notes.md
           gh release create "v${{ github.run_number }}" Playlist-to-MP3.zip \
             --title "v${{ github.run_number }}" --notes-file notes.md --latest
+      - name: Delete older releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --limit 1000 --json tagName --jq '.[].tagName' \
+            | grep -vx "v${{ github.run_number }}" \
+            | xargs -r -n1 gh release delete --yes --cleanup-tag
